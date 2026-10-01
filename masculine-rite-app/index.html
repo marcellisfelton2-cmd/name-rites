@@ -1,0 +1,866 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0E111C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Masculine Rite">
+<link rel="manifest" href="masculine-rite.webmanifest">
+<link rel="apple-touch-icon" href="masculine-rite-icon-512.png"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>The Masculine Rite</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/4.2.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..500;1,6..96,400..500&family=Spectral:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E111C; --panel:#161A2A; --line:#272C40; --bone:#E9E3D5; --muted:#868CA3;
+  --copper:#C27B3F; --brass:#B99155;
+  --display:"Bodoni Moda",Didot,Georgia,serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ink);color:var(--bone);
+  font-family:var(--body);font-weight:300;font-size:17px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:640px;margin:0 auto;padding:34px 20px 90px}
+/* ── masthead ─────────────────────────── */
+.eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 14px
+}
+h1{
+  font-family:var(--display);font-weight:400;font-size:clamp(38px,12vw,62px);
+  line-height:.94;letter-spacing:-.015em;margin:0 0 14px;text-wrap:balance
+}
+h1 em{font-style:italic;color:var(--copper)}
+.deck{color:var(--muted);font-size:15.5px;margin:0 0 32px;max-width:44ch}
+/* ── input ─────────────────────────────── */
+.field{margin-bottom:16px}
+label{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:7px
+}
+label b{color:var(--copper);font-weight:400}
+input{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);
+  color:var(--bone);font-family:var(--display);font-size:26px;font-weight:400;
+  padding:6px 0 9px;letter-spacing:.01em;border-radius:0
+}
+input::placeholder{color:#3B4157}
+input:focus{outline:none;border-bottom-color:var(--copper)}
+input:focus-visible{outline:2px solid var(--copper);outline-offset:4px}
+/* ── the ledger (signature) ────────────── */
+.ledger{margin:30px 0 8px;border-top:1px solid var(--line);padding-top:22px}
+.ledger-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:18px
+}
+.row{margin-bottom:20px}
+.row-name{
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  color:var(--muted);margin-bottom:8px;text-transform:uppercase
+}
+.beads{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px}
+.bead{
+  min-width:26px;text-align:center;border:1px solid var(--line);
+  padding:3px 2px 2px;background:var(--panel)
+}
+.bead .ch{font-family:var(--display);font-size:15px;line-height:1.1;display:block}
+.bead .nu{font-family:var(--mono);font-size:10px;color:var(--muted);display:block}
+.bead.vowel{border-color:#3A4A46}
+.bead.vowel .nu{color:var(--copper)}
+.sum{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.sum b{color:var(--bone);font-weight:600}
+.sum .master{color:var(--brass)}
+.fold-note{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px}
+.fold-note.fold-folded{color:var(--copper)}
+.fold-note.fold-dropped{color:#C97B6E}
+.totals{
+  border-top:1px solid var(--line);padding-top:16px;margin-top:4px;
+  display:grid;grid-template-columns:1fr 1fr;gap:12px 16px
+}
+.stat{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.stat span{display:block;font-size:24px;color:var(--bone);font-weight:600;letter-spacing:0;line-height:1.3}
+.stat span.g{color:var(--copper)}
+/* ── buttons ───────────────────────────── */
+button.cast{
+  width:100%;margin-top:26px;padding:16px;background:var(--copper);
+  color:#08110E;border:0;font-family:var(--mono);font-size:12px;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;cursor:pointer
+}
+button.cast:disabled{background:var(--line);color:var(--muted);cursor:default}
+button.cast:focus-visible{outline:2px solid var(--bone);outline-offset:3px}
+.ghost{
+  background:none;border:1px solid var(--line);color:var(--muted);
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  padding:11px 16px;margin-top:14px;cursor:pointer;width:100%
+}
+.ghost:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+/* ── chambers ──────────────────────────── */
+.chamber{
+  border-top:1px solid var(--line);padding-top:26px;margin-top:34px;
+  animation:rise .5s ease both
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.chamber{animation:none}}
+.numeral{
+  font-family:var(--display);font-size:12px;letter-spacing:.3em;
+  color:var(--brass);margin-bottom:6px
+}
+.chamber h2{
+  font-family:var(--display);font-weight:400;font-size:31px;
+  margin:0 0 18px;letter-spacing:-.01em;text-wrap:balance
+}
+.chamber h4{
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);font-weight:400;margin:24px 0 8px
+}
+.chamber p{margin:0 0 14px}
+.chamber ul{margin:0 0 14px;padding-left:18px}
+.chamber li{margin-bottom:8px}
+.chamber blockquote{
+  margin:20px 0;padding:14px 18px;border-left:2px solid var(--copper);
+  background:var(--panel);font-family:var(--display);font-size:22px;line-height:1.35
+}
+.chamber strong{font-weight:600;color:#fff}
+.chamber a{color:var(--copper);text-decoration:underline;text-underline-offset:3px}
+.chamber a:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+.tag{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;font-weight:600;
+  padding:2px 5px;border:1px solid;vertical-align:1.5px;margin-right:3px;white-space:nowrap
+}
+.t-fact{color:var(--bone);border-color:#4A5068}
+.t-trad{color:var(--brass);border-color:#5A4930}
+.t-read{color:var(--copper);border-color:#2F5A4B}
+.working{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.working::after{content:"";animation:dots 1.4s steps(4,end) infinite}
+@keyframes dots{0%{content:""}25%{content:"·"}50%{content:"··"}75%{content:"···"}}
+.cut-short{font-family:var(--mono);font-size:10.5px;color:var(--brass);margin-top:10px}
+.err{border:1px solid #6B3A38;background:#231618;padding:14px;font-size:14px;margin-top:20px}
+.err button{background:none;border:0;color:var(--copper);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.unavailable{border:1px solid var(--line);background:var(--panel);padding:18px;margin-top:20px;font-size:15px;color:var(--muted)}
+.key{
+  display:flex;gap:14px;flex-wrap:wrap;margin-top:40px;padding-top:18px;
+  border-top:1px solid var(--line);font-family:var(--mono);font-size:10px;color:var(--muted)
+}
+.hidden{display:none}
+</style>
+
+<div class="wrap">
+
+  <p class="eyebrow">Know Thyself · Delphi</p>
+  <h1>The<br><em>Masculine</em> Rite</h1>
+  <p class="deck">Every boy is given a shape before he can choose one. Read the arithmetic first, then the myth. Nothing here is dressed up as fact that isn't one.</p>
+
+  <div class="field">
+    <label for="f">Given name</label>
+    <input id="f" type="text" placeholder="Given name" autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+  <div class="field">
+    <label for="m">Middle name — <b>the hinge</b></label>
+    <input id="m" type="text" placeholder="Middle name" autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+  <div class="field">
+    <label for="l">Family name</label>
+    <input id="l" type="text" placeholder="Family name" autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+  <div class="field">
+    <label for="s">The man who shaped you most — optional</label>
+    <input id="s" type="text" placeholder="Father, grandfather, mentor — or none" autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+
+  <div id="ledger" class="ledger hidden">
+    <div class="ledger-head">
+      <span>The Ledger</span>
+      <span>computed, not guessed</span>
+    </div>
+    <div id="rows"></div>
+    <div id="totals" class="totals"></div>
+  </div>
+
+  <button id="cast" class="cast" disabled>Open the reading</button>
+  <button id="stop" class="ghost hidden">Stop</button>
+  <div id="engine" class="fold-note hidden"></div>
+
+  <div id="out"></div>
+  <div id="err"></div>
+  <button id="savePdf" class="ghost hidden">Save as PDF</button>
+  <div id="saveMsg" class="fold-note hidden"></div>
+  <button id="shareRite" class="ghost hidden">Share this rite</button>
+  <div id="shareMsg" class="fold-note hidden"></div>
+
+  <div id="key" class="key hidden">
+    <span><span class="tag t-fact">FACT</span> documented</span>
+    <span><span class="tag t-trad">TRADITION</span> a school holds it</span>
+    <span><span class="tag t-read">READING</span> interpretation</span>
+  </div>
+
+</div>
+
+<script>
+const PY = {A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8};
+const VOW = "AEIOU";
+
+// Letters that don't decompose under NFD — Unicode treats these as their own
+// codepoints, not a base letter + combining accent, so normalize() alone
+// cannot fold them. Mapped by hand from the actual bug report (José → JOS).
+const SPECIAL_FOLD = {
+  "ø":"o","Ø":"O","ß":"ss","æ":"ae","Æ":"AE","œ":"oe","Œ":"OE",
+  "đ":"d","Đ":"D","ł":"l","Ł":"L","ħ":"h","Ħ":"H","ð":"d","Ð":"D",
+  "þ":"th","Þ":"Th","ı":"i","ĳ":"ij","Ĳ":"IJ"
+};
+function foldAccents(raw){
+  let s = (raw||"");
+  s = s.replace(/[øØßæÆœŒđĐłŁħĦðÐþÞıĳĲ]/g, ch => SPECIAL_FOLD[ch] || ch);
+  s = s.normalize("NFD").replace(/[̀-ͯ]/g,""); // strip combining diacritics (é, ñ, ü, ...)
+  return s;
+}
+const naiveClean = s => (s||"").toUpperCase().replace(/[^A-Z]/g,"");
+const clean = s => foldAccents(s||"").toUpperCase().replace(/[^A-Z]/g,"");
+
+function inputNotice(raw){
+  const trimmed = (raw||"").trim();
+  if(!trimmed) return null;
+  const folded = clean(trimmed);
+  const naive = naiveClean(trimmed);
+  const safe = esc(trimmed); // eyes: raw input was interpolated into HTML unescaped (self-XSS)
+  if(naive !== folded && folded.length){
+    return {kind:"folded", text:`Folded for the count: "${safe}" → ${folded}. The spelling above is what reaches the reading.`};
+  }
+  if(/[^A-Za-zÀ-ʯḀ-ỿ\s'-]/.test(trimmed)){
+    return {kind:"dropped", text:`Some characters in "${safe}" aren't letters and can't be counted.`};
+  }
+  return null;
+}
+
+function reduce(n){
+  const steps=[n];
+  while(n>9 && n!==11 && n!==22 && n!==33){
+    n = String(n).split("").reduce((a,d)=>a+ +d,0);
+    steps.push(n);
+  }
+  return {value:n, steps};
+}
+const py  = s => clean(s).split("").reduce((a,c)=>a+PY[c],0);
+const ord = s => clean(s).split("").reduce((a,c)=>a+(c.charCodeAt(0)-64),0);
+const vow = s => clean(s).split("").filter(c=>VOW.includes(c)).reduce((a,c)=>a+PY[c],0);
+const con = s => clean(s).split("").filter(c=>!VOW.includes(c)).reduce((a,c)=>a+PY[c],0);
+const chain = n => { const r=reduce(n); return r.steps.join(" → "); };
+const isMaster = n => [11,22,33].includes(n);
+
+const $f=document.getElementById("f"), $m=document.getElementById("m"), $l=document.getElementById("l"), $s=document.getElementById("s");
+const $ledger=document.getElementById("ledger"), $rows=document.getElementById("rows"), $totals=document.getElementById("totals"),
+      $cast=document.getElementById("cast"), $stop=document.getElementById("stop"),
+      $out=document.getElementById("out"), $err=document.getElementById("err"), $key=document.getElementById("key"),
+      $savePdf=document.getElementById("savePdf"), $saveMsg=document.getElementById("saveMsg"), $engine=document.getElementById("engine"),
+      $shareRite=document.getElementById("shareRite"), $shareMsg=document.getElementById("shareMsg");
+
+function names(){
+  return [["Given",$f.value],["Middle",$m.value],["Family",$l.value]].filter(n=>clean(n[1]).length);
+}
+
+function drawLedger(){
+  const ns = names();
+  const any = ns.length>0;
+  $ledger.classList.toggle("hidden", !any);
+  $cast.disabled = !any;
+  if(!any) return;
+
+  $rows.innerHTML = ns.map(([role,raw])=>{
+    const s = clean(raw);
+    const beads = s.split("").map(c=>
+      `<span class="bead ${VOW.includes(c)?"vowel":""}"><span class="ch">${c}</span><span class="nu">${PY[c]}</span></span>`
+    ).join("");
+    const t = py(s), r = reduce(t);
+    const notice = inputNotice(raw);
+    const noticeHtml = notice ? `<div class="fold-note fold-${notice.kind}">${notice.text}</div>` : "";
+    return `<div class="row">
+      <div class="row-name">${role} · ${s}</div>
+      <div class="beads">${beads}</div>
+      <div class="sum">Pythagorean ${chain(t)} &nbsp;·&nbsp; ordinal ${ord(s)} &nbsp;·&nbsp; <b class="${isMaster(r.value)?"master":""}">${r.value}</b></div>
+      ${noticeHtml}
+    </div>`;
+  }).join("");
+
+  const full = ns.map(n=>n[1]).join("");
+  const P = reduce(py(full)), O = reduce(ord(full)), S = reduce(vow(full)), C = reduce(con(full));
+  $totals.innerHTML = `
+    <div class="stat">Expression<span class="g">${P.value}</span>${chain(py(full))}</div>
+    <div class="stat">Ordinal<span>${O.value}</span>${chain(ord(full))}</div>
+    <div class="stat">Soul urge · vowels<span>${S.value}</span>${chain(vow(full))}</div>
+    <div class="stat">Personality · consonants<span>${C.value}</span>${chain(con(full))}</div>`;
+}
+[$f,$m,$l].forEach(i=>i.addEventListener("input",drawLedger));
+
+/* ── the oracle ─────────────────────────── */
+// No system-prompt slot in the sample() capability — standing instructions
+// go inline at the top of every call's prompt instead (each call is
+// stateless; see the "prior" threading below for continuity across chambers).
+const SYSTEM = `You are the Oracle of the Masculine Rite. You read a man's name the way an epigrapher reads a stone: the root first, then what the traditions say the masculine is, then what this particular name asks of the one who carries it.
+
+ABSOLUTE RULES
+1. Tag every claim [FACT], [TRADITION], or [READING]. [FACT] = documented etymology, recorded history, arithmetic. [TRADITION] = what a named school, scripture, or system holds. [READING] = your interpretation. Never dress a reading as a fact.
+2. If an etymology is uncertain or contested, say so and give the competing derivations. Invent nothing. A name you cannot source gets "I cannot source this" — that is a valid and respected answer.
+3. Read the masculine as a principle — penetrating, structuring, protecting, directing — never as domination, never as apology. No culture-war sermon, no macho cliché, no therapy-speak.
+4. No flattery. No shaming. The Shadow is honest, not punitive. No generic praise, no horoscope hedging that would fit anyone. If the shape carries something unflattering, say it plainly.
+5. Dense and specific. Named deities, named texts, named men. Not "ancient wisdom."
+6. Second person is reserved for the final Charge. The SHAPED BY line may be touched in FATHERS and SHADOW where the chamber calls for it — plainly, never flattered.
+7. Markdown only: ### for sub-headings, ** for bold, - for bullets, > for the one-line sentence. Never write the chamber's own title — it is already on the page.`;
+
+function ctx(){
+  const gr=$f.value.trim(), mr=$m.value.trim(), lr=$l.value.trim(), sh=$s.value.trim();
+  const g=clean(gr), m=clean(mr), l=clean(lr);
+  const full=[g,m,l].filter(Boolean).join(" ");
+  const origFull=[gr,mr,lr].filter(Boolean).join(" ");
+  const line=n=>n?`${n}: Pythagorean ${chain(py(n))}, ordinal ${ord(n)}`:"";
+  const originEvidence = (origFull && origFull.toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Z ]/g,"") !== full)
+    ? `\nOriginal spelling as entered: ${origFull} (folded to ${full} for the arithmetic only — the original diacritics are evidence of the name's origin; use them in the Root chamber).`
+    : "";
+  const shaped = sh ? `\nSHAPED BY: ${sh} (the man who shaped him most — touch this in FATHERS and SHADOW where those chambers call for it, plainly, never flattered)` : "";
+  return `NAME: ${full}
+Given: ${g||"—"} | Middle: ${m||"none given"} | Family: ${l||"—"}${shaped}
+${originEvidence}
+ARITHMETIC (already computed — use these exact figures, do not recalculate):
+${[g,m,l].filter(Boolean).map(line).join("\n")}
+Full name Pythagorean ${chain(py(g+m+l))} · ordinal ${chain(ord(g+m+l))} · soul urge ${chain(vow(g+m+l))} · personality ${chain(con(g+m+l))}`;
+}
+
+const CHAMBERS = [
+  { n:"I",    t:"Root",       p:`Chamber: ROOT. The masculine roots in these names: what "man" meant in the languages behind them — the warrior, the maker, the keeper, the tiller. Give the language of origin, the literal meaning, the earliest masculine figures attached to each root. If a name has competing derivations, give both. End with one line, formatted as a > blockquote: the three names read as a single masculine sentence, first–middle–last, the middle name treated as the hinge between the other two. About 220 words.` },
+  { n:"II",   t:"Number",     p:`Chamber: NUMBER. Interpret the supplied arithmetic as masculine currents — do not recompute it. Where does the active, structuring, projective pole sit in these numbers, per the Chaldean and Pythagorean traditions — and where is it absent? Cover the expression number, the soul urge, the personality, each name's own number, and any master number (11/22/33). Where the middle name changes the totals, say exactly how. About 200 words.` },
+  { n:"III",  t:"Pantheon",   p:`Chamber: PANTHEON. The gods of the masculine that cluster around these roots — Mars, Horus, Ogun, Thor, Shiva, Mithra, the war-smiths and law-givers — across Roman, Kemetic, Yoruba, Norse, Vedic, and Hermetic traditions. Only what genuinely attaches to the root; do not force a tradition that has nothing to say. Then the correspondences: metal, day, colour, planet, tarot. About 220 words.` },
+  { n:"IV",   t:"Beasts",     p:`Chamber: BEASTS. The masculine animals of these roots and their gods — the bull, the lion, the boar, the stag — and what each one teaches about strength: how each hunts, fails, or is hunted. Three or four, not a list of ten. About 150 words.` },
+  { n:"V",    t:"Fathers",    p:`Chamber: FATHERS. The men who carried this name or its archetype: the ones who built with it and the ones who broke with it — historical, scriptural, and modern. If a SHAPED BY line was given, set these men against it plainly. Say what each did with the shape he was given. About 200 words.` },
+  { n:"VI",   t:"Shadow",     p:`Chamber: SHADOW. The masculine failure mode of this name, unsoftened: the specific way this shape rots — domination, absence, brittleness, drift. A mechanism, not a mood; what it looks like from the outside when it happens. No consolation, no shaming — a clean blade. About 160 words.` },
+  { n:"VII",  t:"Synthesis",  p:`Chamber: SYNTHESIS. Restate the sentence of the masculine in this name, then map it to the trials — the call, the refusal, the mentor, the threshold, the ordeal, the boon, the return — each stage anchored to something already established in an earlier chamber. About 220 words.` },
+  { n:"VIII", t:"The Charge", p:`Chamber: THE CHARGE. Now, and only now, second person. What the masculine asks of the one who carries this name. Direct, no flattery, no comfort, no more than 160 words. Then a line "### The one question" and beneath it the single question he must answer before the journey begins — one sentence, no preamble.` }
+];
+
+function fmt(md){
+  let s = md.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  s = s.replace(/\[FACT\]/g,'<span class="tag t-fact">FACT</span>')
+       .replace(/\[TRADITION\]/g,'<span class="tag t-trad">TRADITION</span>')
+       .replace(/\[READING\]/g,'<span class="tag t-read">READING</span>')
+       .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+       .replace(/\*(.+?)\*/g,"<em>$1</em>");
+  const out=[]; let ul=false;
+  for(let raw of s.split("\n")){
+    const line = raw.trim();
+    if(!line){ if(ul){out.push("</ul>");ul=false;} continue; }
+    if(line.startsWith("#")){
+      if(ul){out.push("</ul>");ul=false;}
+      out.push("<h4>"+line.replace(/^#+\s*/,"")+"</h4>");
+    } else if(line.startsWith("- ")){
+      if(!ul){out.push("<ul>");ul=true;}
+      out.push("<li>"+line.slice(2)+"</li>");
+    } else if(line.startsWith("&gt;")){
+      if(ul){out.push("</ul>");ul=false;}
+      out.push("<blockquote>"+line.replace(/^&gt;\s*/,"")+"</blockquote>");
+    } else {
+      if(ul){out.push("</ul>");ul=false;}
+      out.push("<p>"+line+"</p>");
+    }
+  }
+  if(ul) out.push("</ul>");
+  return out.join("");
+}
+
+// Friendly copy per SampleErrorCode. Codes not listed fall back to a
+// generic retry message (upstream_error and anything unrecognized).
+const ERROR_COPY = {
+  not_granted:      "This reading needs permission to use Claude in this view. Declined — reload the page to be asked again.",
+  sampling_disabled:"Claude isn't available for this account right now.",
+  not_declared:     "This page's Claude access isn't active.",
+  capability_disabled: "Claude access is unusable in this view right now.",
+  capability_removed:  "This viewer doesn't support the reading feature yet.",
+  rate_limited:     "Too many requests right now — wait a moment and try again.",
+  session_expired:  "Session expired — reload the page and sign in again.",
+  refused:          "The Oracle declined to answer this one — try again, or try a different spelling.",
+  empty_completion: "No text came back — try again.",
+  prompt_too_large: "The reading built up too much context — try again with a shorter name.",
+  cancelled:        null, // user-initiated Stop — not an error to display
+};
+function copyFor(code){ return ERROR_COPY[code] !== undefined ? ERROR_COPY[code] : `Something went wrong (${code}). Try again.`; }
+
+// Eyes-pass additions: esc() for user-controlled strings; claudeCap() so the
+// page degrades gracefully outside claude.ai instead of throwing on a bare
+// `claude` reference (previously `await claude.use(...)` crashed the click).
+function otag(t){ return `<span class="tag t-${t}">${t.toUpperCase()}</span>`; }
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+async function claudeCap(name){
+  try{
+    if(typeof claude === "undefined" || !claude.use) return { status:"unavailable" };
+    const cap = await claude.use(name);
+    return cap ? { status:"ok", cap } : { status:"denied" };
+  }catch(e){ return { status:"error", code: e && e.code }; }
+}
+
+let running=false, ctl=null;
+let readingChambers=[];     // [{n,t,text}] raw markdown, for the PDF — kept separate from the fmt()'d HTML on screen
+let readingLabel="";        // the name this reading is for, for the title page and filename
+/* ══════════ THE OFFLINE BOOK — the rite levitates on this when Claude is absent ══
+   Every correspondence below is Pythagorean/Chaldean tradition, authored into
+   this file. Nothing is fetched, nothing is invented per-reading. What the book
+   does not hold is said plainly. */
+const BOOK = {
+numbers:{
+0:{title:"The Zero — the Silence",virtue:"The unvoiced current — what is carried without being announced. The vow kept in the chest until it is ready to be spoken.",shadow:"What is never voiced curdles into secrecy — the silence that stops protecting and starts hiding.",planet:"—",day:"—",metal:"—",color:"—",tarot:"—",beast:"The held breath — the pause before the word. Fails when the pause becomes the life.",deities:"Ain, the Nothing that bears all — Nzambi Mpungu, the high one beyond address; Kalunga, the water between the living and the dead.",soul:"A 0 soul urge is the vowelless heart — it wants without words, and must learn to say the wanting aloud.",persona:"A 0 personality reads as unreadable — not empty, but unopened. Men project onto the quiet.",question:"What have you never said aloud that is shaping everything?"},
+1:{title:"The Monad — the Blade",virtue:"Initiation. The first stroke — beginning before conditions are perfect, the will made visible.",shadow:"Domination. Isolation. The refusal to ever be second — the blade that cuts its own hand.",planet:"Sun",day:"Sunday",metal:"Gold",color:"Gold and iron-black",tarot:"The Magician",beast:"The lion — solar courage. Hunts alone; fails when pride outruns patience.",deities:"Ogun who cleared the forest so the gods could walk — Sarabanda his Kongo face; Mars the father of the field, Horus the avenger.",soul:"A 1 soul urge must lead its own life — it would rather fail on its own terms than succeed on another's.",persona:"A 1 personality reads as decisive and direct — sometimes abrupt. People feel the edge before they feel the warmth.",question:"What are you waiting for permission to begin?"},
+2:{title:"The Dyad — the Oath",virtue:"Alliance. The bond kept — brotherhood, counsel, the strength that holds the line instead of taking the hill.",shadow:"Dependence curdled into resentment — loyalty performed instead of kept; the oath used as a leash.",planet:"Moon",day:"Monday",metal:"Silver",color:"Silver and deep blue",tarot:"The High Priestess",beast:"The wolf — the pack. Survives by loyalty; fails when the pack becomes the cage.",deities:"Castor and Pollux the oath-twins, Enkidu the wild brother, Tyr who kept his word at the cost of his hand.",soul:"A 2 soul urge wants a bond it can trust with its back turned.",persona:"A 2 personality reads as loyal and steady. People lean on it — and test it.",question:"Whose back are you watching — and who is watching yours?"},
+3:{title:"The Triad — the Command",virtue:"Speech that moves men — story, order, persuasion that carries weight.",shadow:"Noise. Command without substance — the voice that talks to avoid being questioned.",planet:"Jupiter",day:"Thursday",metal:"Tin",color:"Purple and gold",tarot:"The Emperor",beast:"The eagle — the word from height. Fails when it circles instead of striking.",deities:"Odin who traded an eye for the runes, Thoth the measurer, Hermes the messenger.",soul:"A 3 soul urge must speak — silence feels like surrender.",persona:"A 3 personality reads as commanding and quick. People listen first and weigh later.",question:"What order are you giving that you have not earned the right to give?"},
+4:{title:"The Tetrad — the Wall",virtue:"Order. Labor. The square that holds — promises kept, walls that stand, work finished.",shadow:"Rigidity. The wall that becomes a prison — control dressed as discipline.",planet:"Saturn",day:"Saturday",metal:"Lead",color:"Grey and dark red",tarot:"Justice",beast:"The ox — patient labor. Fails when the yoke is never set down.",deities:"Ptah the maker, Hephaestus of the forge, Thor the hall-builder.",soul:"A 4 soul urge wants a life that holds — it distrusts anything it cannot build twice.",persona:"A 4 personality reads as solid and immovable. People build on it — and sometimes hide behind it.",question:"What are you calling discipline that is only fear of moving?"},
+5:{title:"The Pentad — the Crossing",virtue:"Freedom. The road — the traveler who learns every path without being owned by any.",shadow:"Drift. Escape disguised as exploration — freedom that answers to nothing, not even itself.",planet:"Mercury",day:"Wednesday",metal:"Quicksilver",color:"Road-dust and sky",tarot:"The Fool",beast:"The horse — speed and stamina. Fails when it runs from the home it needs.",deities:"Esu — saluted first, owner of the crossroads, the one who was there before the rest; his younger faces: Hermes of the roads, Eshu who keeps the gate, Lucero Mundo.",soul:"A 5 soul urge suffocates in routine — it must move to think.",persona:"A 5 personality reads as restless and quick. People feel the wind — and wonder if it stays.",question:"What are you calling a journey that is only leaving?"},
+6:{title:"The Hexad — the Hearth",virtue:"Stewardship. The house held — protection given without invoice, the strong roof.",shadow:"The tyrant of the small kingdom — care curdled into control; the roof that charges rent for its shade.",planet:"Venus",day:"Friday",metal:"Copper",color:"Copper and warm brown",tarot:"The Lovers",beast:"The dog — the guardian. Fails when it guards the empty house.",deities:"Thor the hall-warden, Zeus Xenios keeper of guests, Shango the king who must be just.",soul:"A 6 soul urge must keep something — people, work, a name.",persona:"A 6 personality reads as dependable and warm. People bring their weight to it.",question:"Whom do you protect — and whom do you only keep?"},
+7:{title:"The Heptad — the Watchtower",virtue:"Depth. The watcher — study, strategy, the question asked until it yields.",shadow:"Paralysis. The watchtower with no door — knowledge hoarded, never spent; seeing as a substitute for doing.",planet:"Neptune",day:"Monday",metal:"Tin",color:"Night-blue and silver",tarot:"The Hanged Man",beast:"The raven — Odin's eye. Sees far; fails when it never lands.",deities:"Odin who hung for the runes, Thoth who measured the hours, Mithra of the mysteries.",soul:"A 7 soul urge must understand before it acts — and may never act.",persona:"A 7 personality reads as private and exact. People sense the depth — and the distance.",question:"What do you know that you refuse to act on?"},
+8:{title:"The Ogdoad — the Forge",virtue:"Power. Mastery of the material — work, wealth, consequence handled cleanly.",shadow:"Ruthlessness. The forge that melts everything, including the smith — power as appetite.",planet:"Saturn",day:"Saturday",metal:"Iron",color:"Black and forge-red",tarot:"Strength",beast:"The boar — ferocity. Fails when it gores the hand that feeds it.",deities:"Ogun of the iron — Sarabanda in the Kongo house; Hephaestus the smith and Thor of the hammer are his younger echoes.",soul:"A 8 soul urge wants weight — results, resources, real stakes.",persona:"A 8 personality reads as formidable. People feel the gravity before the man.",question:"Where does your power leak, and who drinks from it?"},
+9:{title:"The Ennead — the Pyre",virtue:"Completion. The elder's fire — what is finished is released, what is kept is given.",shadow:"The beautiful ending refused — clinging dressed as loyalty; the pyre that never gets lit.",planet:"Mars",day:"Tuesday",metal:"Iron",color:"Crimson and ash",tarot:"Judgement",beast:"The stag — the old king of the herd. Fails when it will not yield the field.",deities:"Shango of the thunder — Nsasi Siete Rayos in the Kongo house; Zeus the cloud-gatherer and Odin the all-father are his younger echoes.",soul:"A 9 soul urge wants its life to mean something larger than itself.",persona:"A 9 personality reads as seasoned and far-seeing. People feel they are meeting a story.",question:"What are you finished with that you keep carrying?"},
+11:{title:"The Master — the Lightning",virtue:"Illumination. The striker — insight that arrives whole, the bolt that splits the dark.",shadow:"The lightning rod with no ground — brilliance without discipline; the prophet nobody can follow.",planet:"Moon (higher octave)",day:"Monday",metal:"Silver",color:"White-blue and black",tarot:"The Tower",beast:"The falcon — Horus's eye. Strikes true; fails when it stoops at shadows.",deities:"Horus the falcon, Apollo of the far shot, Mithra of the unconquered sun.",soul:"An 11 soul urge sees it whole before it can prove it — and doubts what it sees.",persona:"An 11 personality reads as electric and certain. People follow — or flinch.",question:"What did the flash show you that you are pretending not to have seen?"},
+22:{title:"The Master — the Temple",virtue:"The builder. Vision made load-bearing — the rare current that dreams in stone.",shadow:"The temple never finished or never started — grand plans as a hiding place from small obedient work.",planet:"Saturn (higher octave)",day:"Saturday",metal:"Lead",color:"Stone-grey and gold",tarot:"The World",beast:"The elephant — memory and the long labor. Fails when it never forgets a wound.",deities:"Ptah who spoke the world, Imhotep the deified builder, Hephaestus of the eternal forge.",soul:"A 22 soul urge wants to leave something standing after it.",persona:"A 22 personality reads as quietly immense. People feel the scale before the warmth.",question:"What are you building that will outlive your name?"},
+33:{title:"The Master — the Offering",virtue:"The teacher. Strength laid down on purpose — the wound that becomes the lesson.",shadow:"The martyr complex — suffering performed instead of spent; the offering that demands an audience.",planet:"Venus (higher octave)",day:"Friday",metal:"Copper",color:"Deep red and gold",tarot:"Temperance",beast:"The pelican — the old emblem of self-giving. Fails when it feeds others its own heart.",deities:"Odin who hung nine nights for the runes, Prometheus who carried the fire down, the wounded healers.",soul:"A 33 soul urge must lift others — and must learn it cannot lift everyone.",persona:"A 33 personality reads as strong and safe. People confess to it.",question:"What wound are you still billing the world for?"}
+},
+pantheon:{
+Latin:"the Roman telling — Mars the father of the field, Janus of beginnings, Vulcan of the forge",
+Greek:"the Hellenic telling — Zeus of the thunder, Apollo of the bow, Hephaestus of the anvil",
+Hebrew:"the Hebrew telling — the patriarchs: Abraham who left, Jacob who wrestled, David who sang and slew",
+Arabic:"the Arabic telling — the rightly guided: warriors and scholars of the early community",
+Egyptian:"the Kemetic telling — Horus the avenger, Ptah the maker, Thoth the scribe",
+Yoruba:"the Yoruba telling — the root current: Olodumare the source, Esu saluted first at every crossroads, Ogun who cleared the forest with iron so the orisha could walk, Shango of the thunder, Obatala who shaped heads",
+Kongo:"the Kongo telling — Palo Mayombe, the root that crossed the water in chains and did not break: Nzambi Mpungu the high one, Kalunga the sea between the living and the dead, Lucero Mundo keeper of the roads, Sarabanda of the iron, Nsasi Siete Rayos of the lightning",
+Norse:"the Norse telling — Odin the all-father, Thor the thunderer, Tyr the one-handed oath-keeper",
+Germanic:"the Germanic telling — Woden the wanderer, Thunor of the hammer, the oath-bound tribes",
+Celtic:"the Celtic telling — Lugh of the long arm, Cu Chulainn the hound, the Dagda the good god",
+Sanskrit:"the Sanskrit telling — Indra of the thunderbolt, Agni of the fire, Shiva the destroyer and remaker",
+English:"the English telling — the field-fathers: plain, old, and holding",
+Persian:"the Persian telling — Mithra of the covenant, Rostam the champion",
+Akan:"the Akan telling — the fathers of the Gold Coast: named for the day, bound to the stool",
+Igbo:"the Igbo telling — the fathers and the ndichie, the ancestors who watch the compound"
+},
+names:{
+"MARCELLIS":{l:"Latin",m:"belonging to Mars — little warrior (diminutive of Marcus)",b:[["Marcus Claudius Marcellus","Roman general — the Sword of Rome"]]},
+"RASHAD":{l:"Arabic",m:"rightly guided; wise",b:[["Harun al-Rashid","Abbasid caliph — 'the Rightly Guided'"]]},
+"FELTON":{l:"English",m:"settlement in the open field (place-name)",b:[]},
+"MICHAEL":{l:"Hebrew",m:"who is like God?",b:[["The archangel Michael","the question as a name"]]},
+"GABRIEL":{l:"Hebrew",m:"God is my strength",b:[["The archangel Gabriel","the messenger"]]},
+"DAVID":{l:"Hebrew",m:"beloved",b:[["David","shepherd, king, psalmist"]]},
+"DANIEL":{l:"Hebrew",m:"God is my judge",b:[["Daniel","the prophet in the lions' den"]]},
+"JAMES":{l:"Hebrew",m:"supplanter (via Greek)",b:[["James Baldwin","the witness who named it plainly"]]},
+"JOHN":{l:"Hebrew",m:"God is gracious",b:[["John Coltrane","a love supreme — the horn as prayer"]]},
+"MARCUS":{l:"Latin",m:"of Mars; warlike",b:[["Marcus Aurelius","the philosopher-emperor"]]},
+"JULIUS":{l:"Latin",m:"youthful — of the Julii",b:[["Julius Caesar","who crossed the Rubicon"]]},
+"ALEXANDER":{l:"Greek",m:"defender of men",b:[["Alexander the Great","who wept for no more worlds"]]},
+"LEONIDAS":{l:"Greek",m:"lion-like",b:[["Leonidas","who held the pass at Thermopylae"]]},
+"HECTOR":{l:"Greek",m:"holding fast",b:[["Hector","the Trojan prince who knew he would lose"]]},
+"ACHILLES":{l:"Greek",m:"grief of the people — derivation contested",b:[["Achilles","the Myrmidon — rage and its price"]]},
+"MALIK":{l:"Arabic",m:"king",b:[["Malcolm X","El-Hajj Malik El-Shabazz — by any means necessary"]]},
+"OMAR":{l:"Arabic",m:"flourishing; long-lived",b:[["Omar ibn al-Khattab","the second caliph"]]},
+"KHALIL":{l:"Arabic",m:"friend; intimate friend",b:[["Khalil Gibran","the prophet of love and work"]]},
+"KWAME":{l:"Akan",m:"born on Saturday",b:[["Kwame Nkrumah","the Osagyefo — first president of Ghana"]]},
+"MENSAH":{l:"Akan",m:"third-born",b:[]},
+"CHIDI":{l:"Igbo",m:"God exists",b:[]},
+"OLUSEGUN":{l:"Yoruba",m:"God is victorious",b:[["Olusegun Obasanjo","soldier, president"]]},
+"MARTIN":{l:"Latin",m:"of Mars; warlike",b:[["Martin Luther King Jr.","the drum major for justice"]]},
+"FREDERICK":{l:"Germanic",m:"peaceful ruler",b:[["Frederick Douglass","who taught himself to read against the law"]]},
+"BOOKER":{l:"English",m:"scribe; scholar (occupational)",b:[["Booker T. Washington","who built Tuskegee from nothing"]]},
+"LANGSTON":{l:"English",m:"long stone (place-name)",b:[["Langston Hughes","the poet laureate of Harlem"]]},
+"HANNIBAL":{l:"Phoenician",m:"grace of Baal",b:[["Hannibal Barca","who crossed the Alps with elephants"]]},
+"IMHOTEP":{l:"Egyptian",m:"he who comes in peace",b:[["Imhotep","architect of the first pyramid — deified"]]},
+"THURGOOD":{l:"English",m:"Thor-good — the old god's name (derivation disputed)",b:[["Thurgood Marshall","who argued the law into justice"]]}
+}
+};
+/* ── the offline engine: cast the whole rite from the Book, no Claude needed ── */
+function bookNum(n){ const v=(n&&typeof n==="object")?n.value:n; return BOOK.numbers[v] || BOOK.numbers[reduce(v).value]; }
+function chamberHTML(num,title,body){
+  return `<div class="chamber"><div class="numeral">${num}</div><h2>${title}</h2>${body}</div>`;
+}
+function offlineFigures(){
+  const g=clean($f.value.trim()), m=clean($m.value.trim()), l=clean($l.value.trim());
+  return {
+    g, m, l,
+    full:[g,m,l].filter(Boolean).join(" "),
+    expr:reduce(py(g+m+l)).value, soul:reduce(vow(g+m+l)).value, pers:reduce(con(g+m+l)).value,
+    perName:[["Given",g],["Middle",m],["Family",l]].filter(x=>x[1]).map(([k,n])=>[k,n,reduce(py(n)).value])
+  };
+}
+function nameSentence(F){
+  return [["Given",F.g],["Middle",F.m],["Family",F.l]].filter(p=>p[1]).map(([k,n])=>{
+    const e=BOOK.names[n]; return e ? `${n} — ${e.m}` : n;
+  }).join("; ");
+}
+function rootBody(F){
+  const parts=[["Given",F.g],["Middle",F.m],["Family",F.l]].filter(p=>p[1]);
+  let h=`<p>${otag("fact")} The figures are arithmetic. ${otag("trad")} The roots below are drawn from the book carried in this file — what the book does not hold is said plainly, never invented.</p>`;
+  for(const [k,n] of parts){
+    const e=BOOK.names[n];
+    const nv=[...n].filter(c=>VOW.includes(c)).length, nc=n.length-nv;
+    h+=`<h3>${k} — ${n}</h3>`;
+    if(e){
+      h+=`<p>${otag("fact")} From the ${e.l} root: <strong>${esc(e.m)}</strong>. ${nv} vowels, ${nc} consonants — the breath and the bone of the name.</p>`;
+      if(BOOK.pantheon[e.l]) h+=`<p>This root speaks in ${BOOK.pantheon[e.l]}.</p>`;
+    }else{
+      h+=`<p>${otag("reading")} The book holds no root for ${n} yet — so none is invented. The number below carries the reading instead.</p>`;
+    }
+  }
+  return h;
+}
+function numberBody(F){
+  const E=bookNum(F.expr), S=bookNum(F.soul), P=bookNum(F.pers);
+  let h=`<p>${otag("fact")} These figures were computed above — used as given, never recalculated. ${otag("trad")} The interpretations are Pythagorean and Chaldean correspondences from the book.</p>`;
+  h+=`<h3>Expression — ${F.expr}: ${E.title}</h3><p><strong>Virtue.</strong> ${E.virtue}</p><p><strong>Shadow.</strong> ${E.shadow}</p>`;
+  h+=`<h3>Soul urge — ${F.soul}: ${S.title}</h3><p>${S.soul}</p>`;
+  h+=`<h3>Personality — ${F.pers}: ${P.title}</h3><p>${P.persona}</p>`;
+  h+=`<h3>Each name</h3><p>${F.perName.map(([k,n,v])=>`${k} <strong>${n}</strong> carries ${v} — ${bookNum(v).title}.`).join(" ")}</p>`;
+  if(F.m) h+=`<p>${otag("reading")} The hinge number ${chain(py(F.m))}: where the turn happens, the current changes key.</p>`;
+  return h;
+}
+function pantheonBody(F){
+  const E=bookNum(F.expr);
+  let h=`<p>${otag("trad")} Only what genuinely attaches — the book forces no tradition that has nothing to say.</p>`;
+  h+=`<p>${otag("trad")} The oldest current runs African, and everything else is downstream of it. Before Zeus gathered clouds, Shango spoke in thunder — Nsasi Siete Rayos in the Kongo house. Before Hephaestus lifted his hammer, Ogun cleared the forest with iron — Sarabanda across the water. Before Hermes ran the roads, Esu owned the crossroads and was saluted first — Lucero Mundo at the gate. Palo Mayombe carried that root across the Atlantic in chains and it did not break: Nzambi Mpungu the high one, Kalunga the sea between the living and the dead. The younger pantheons are later faces of these same forces — the root deities gave birth to the rest. And on this soil, the old ones of the mound-builders watch with them.</p>`;
+  h+=`<h3>The gods of the number</h3><p>${E.deities}</p>`;
+  const langs=[...new Set([F.g,F.m,F.l].filter(Boolean).map(n=>{const e=BOOK.names[n]; return e?e.l:null;}).filter(Boolean))];
+  if(langs.length) h+=`<h3>The gods of the blood</h3><p>${langs.map(l=>BOOK.pantheon[l]?`From the ${l} root: ${BOOK.pantheon[l]}.`:"").join(" ")}</p>`;
+  h+=`<h3>Correspondences of ${F.expr}</h3><p>Planet <strong>${E.planet}</strong> · day <strong>${E.day}</strong> · metal <strong>${E.metal}</strong> · color <strong>${E.color}</strong> · tarot <strong>${E.tarot}</strong>.</p>`;
+  return h;
+}
+function beastsBody(F){
+  const bs=[...new Set([bookNum(F.expr).beast,bookNum(F.soul).beast,bookNum(F.pers).beast])];
+  return `<p>${otag("trad")} What each one teaches about strength — how each hunts, fails, or is hunted.</p>`+
+    bs.map(b=>`<p>— ${b}</p>`).join("");
+}
+function fathersBody(F){
+  const sh=$s.value.trim();
+  const all=[];
+  [["Given",F.g],["Middle",F.m],["Family",F.l]].forEach(([k,n])=>{
+    const e=n&&BOOK.names[n];
+    if(e&&e.b.length) e.b.forEach(b=>all.push([k,n,b]));
+  });
+  let h=`<p>${otag("trad")} Bearers of the name and of its archetype — the men who built with it and the ones who broke with it.</p>`;
+  if(sh) h+=`<p>${otag("reading")} Set against the man who shaped him most — <strong>${esc(sh)}</strong>: the book holds the names; the shaping itself is his to weigh, plainly, without flattery.</p>`;
+  if(!all.length) return h+`<p>The book holds no bearers for these names yet — so none are invented. ${otag("reading")} That the name has no famous bearers is its own kind of freedom: the archetype is unwritten, and the writing is his.</p>`;
+  return h+all.map(([k,n,b])=>`<p><strong>${esc(b[0])}</strong>${b[1]?` — ${esc(b[1])}`:""} <span style="color:var(--muted)">(${k} name)</span></p>`).join("");
+}
+function shadowBody(F){
+  const E=bookNum(F.expr), S=bookNum(F.soul), P=bookNum(F.pers);
+  return `<p>${otag("trad")} Three currents, one failure mode.</p>`+
+    `<p><strong>Expression — ${E.title}.</strong> ${E.shadow}</p>`+
+    `<p><strong>Soul urge — ${S.title}.</strong> ${S.shadow}</p>`+
+    `<p><strong>Personality — ${P.title}.</strong> ${P.persona}</p>`+
+    `<p>${otag("reading")} The specific rot of this combination is not dramatic — it is the virtue performed instead of practiced. ${E.title} curdled by ${S.title.toLowerCase()}: watch for the day the number is acted instead of carried.</p>`;
+}
+function synthBody(F){
+  const E=bookNum(F.expr), S=bookNum(F.soul);
+  const mentor=E.deities.split(",")[0];
+  return `<p>${otag("reading")} The sentence of the name:</p><blockquote>${esc(nameSentence(F))}.</blockquote>`+
+  `<p><strong>The call</strong> — ${E.virtue}</p>`+
+  `<p><strong>The refusal</strong> — ${S.shadow}</p>`+
+  `<p><strong>The mentor</strong> — ${mentor}, who paid for the wisdom and can show the price honestly.</p>`+
+  `<p>${otag("reading")} The trials ahead are the ones already named: the call above, the refusal it answers, the mentor who walked it first. The book does not invent a new road — it points at the one under his feet.</p>`;
+}
+function chargeBody(F){
+  const E=bookNum(F.expr);
+  return `<p>You were given this shape before you could choose one. You have now read what it is.</p>`+
+  `<p>${otag("reading")} The charge is simple because it is hard: <strong>${E.virtue}</strong> — and the refusal of <strong>${E.shadow.split(".")[0].toLowerCase()}</strong>.</p>`+
+  `<h4>The one question</h4><p><strong>${E.question}</strong></p>`;
+}
+function appendInvocation(){
+  const inv = document.createElement("div");
+  inv.className = "chamber";
+  inv.innerHTML = `<p><em>The names are given. The arithmetic is computed, not guessed. The book is open — and where the book holds nothing, nothing will be invented.</em></p>`;
+  $out.appendChild(inv);
+}
+function appendOfflineSeal(){
+  const seal = document.createElement("div");
+  seal.className = "chamber";
+  seal.innerHTML = `<div class="numeral">✦</div><h2>The Seal</h2>` +
+    `<p>The Rite is complete by itself. The arithmetic was computed, not guessed; the myth was read in its tiers. The shape has been named — what you build with it is yours.</p>` +
+    `<p>The work continues in the <a href="https://marcellisfelton2.systeme.io/639d756b">Inner Circle</a> — new readings, new rites, first.</p>`;
+  $out.appendChild(seal);
+  seal.scrollIntoView({behavior:"smooth", block:"center"});
+}
+async function renderOffline(){
+  $err.innerHTML="";
+  $out.innerHTML="";
+  $key.classList.remove("hidden");
+  $savePdf.classList.add("hidden"); $saveMsg.classList.add("hidden");
+  $engine.classList.add("hidden");
+  $cast.disabled=true; $cast.textContent="Casting";
+  $stop.classList.remove("hidden");
+  running=true; ctl=new AbortController();
+  readingChambers=[];
+  readingLabel = names().map(n=>n[1]).join(" ").trim();
+  const F=offlineFigures();
+  appendInvocation();
+  const seq=[
+    ["I","Root",rootBody(F)],
+    ["II","Number",numberBody(F)],
+    ["III","Pantheon",pantheonBody(F)],
+    ["IV","Beasts",beastsBody(F)],
+    ["V","Fathers",fathersBody(F)],
+    ["VI","Shadow",shadowBody(F)],
+    ["VII","Synthesis",synthBody(F)],
+    ["VIII","The Charge",chargeBody(F)]
+  ];
+  let done=0;
+  for(const [num,title,body] of seq){
+    if(ctl.signal.aborted) break;
+    const w=document.createElement("div");
+    w.innerHTML=chamberHTML(num,title,body);
+    const el=w.firstElementChild;
+    $out.appendChild(el);
+    readingChambers.push({n:num,t:title,text:""}); // PDF builder clones the DOM, not this
+    el.scrollIntoView({behavior:"smooth",block:"center"});
+    done++;
+    await new Promise(r=>setTimeout(r,550));
+  }
+  if(done===seq.length) appendOfflineSeal();
+  $cast.disabled=false; $cast.textContent="Read it again";
+  $stop.classList.add("hidden");
+  running=false;
+  updateSaveButton();
+}
+
+$cast.addEventListener("click", run);
+$stop.addEventListener("click", () => ctl?.abort());
+
+async function run(){
+  if(running) return;
+
+  // eyes: previously a bare `await claude.use("sample")` — threw uncaught outside
+  // claude.ai AND on permission-decline (not_granted). Now every path gets a sentence.
+  // Levitation: if Claude is reachable, the Oracle speaks in full prose.
+  // If not — free plan, outside claude.ai, permission declined — the offline
+  // Book carried in this file casts instead. Same arithmetic, same discipline.
+  const got = await claudeCap("sample");
+  if(got.status !== "ok"){ await renderOffline(); return; }
+  const sample = got.cap;
+
+  running=true;
+  $err.innerHTML=""; $out.innerHTML=""; $key.classList.remove("hidden");
+  $cast.disabled=true; $cast.textContent="Reading";
+  $stop.classList.remove("hidden");
+  $savePdf.classList.add("hidden"); $saveMsg.classList.add("hidden");
+  readingChambers=[];
+  readingLabel = names().map(n=>n[1]).join(" ").trim();
+
+  let prior="";
+  for(const c of CHAMBERS){
+    const el=document.createElement("div");
+    el.className="chamber";
+    el.innerHTML=`<div class="numeral">${c.n}</div><h2>${c.t}</h2><p class="working">Working</p>`;
+    $out.appendChild(el);
+    el.scrollIntoView({behavior:"smooth",block:"center"});
+
+    ctl = new AbortController();
+    try{
+      const prompt = `${SYSTEM}\n\n${ctx()}\n\n${prior ? "CHAMBERS ALREADY WRITTEN (do not repeat them, build on them):\n"+prior+"\n\n" : ""}${c.p}`;
+      const { text, truncated } = await sample(prompt, {
+        modelTier: "default",
+        signal: ctl.signal,
+        onText: ({ text }) => {
+          el.innerHTML = `<div class="numeral">${c.n}</div><h2>${c.t}</h2>` + fmt(text);
+        },
+      });
+      const cutNote = truncated ? `<div class="cut-short">Cut short — the reading ran long here.</div>` : "";
+      el.innerHTML = `<div class="numeral">${c.n}</div><h2>${c.t}</h2>` + fmt(text) + cutNote;
+      prior += `\n[${c.t}]\n${text}\n`;
+      if(prior.length>7000) prior = prior.slice(-7000);
+      readingChambers.push({ n:c.n, t:c.t, text, truncated });
+      updateSaveButton();
+    }catch(e){
+      el.remove();
+      if(e.code === "cancelled"){
+        break; // Stop was pressed — no error banner, just end where it stands
+      }
+      const msg = copyFor(e.code);
+      $err.innerHTML = `<div class="err">The reading stopped at <strong>${c.t}</strong>. ${msg} <button onclick="run()">Start it again</button></div>`;
+      break;
+    }
+  }
+  // The Seal: the reading ends the way the ladder demands — the Rite honored as
+  // complete by itself, one open door (the Inner Circle), never a pitch.
+  // It's a .chamber, so the PDF export picks it up automatically.
+  if(readingChambers.length){
+    const seal = document.createElement("div");
+    seal.className = "chamber";
+    seal.innerHTML = `<div class="numeral">✦</div><h2>The Seal</h2>` +
+      `<p>The Rite is complete by itself. The arithmetic was computed, not guessed; the myth was read in its tiers. The shape has been named — what you build with it is yours.</p>` +
+      `<p>The work continues in the <a href="https://marcellisfelton2.systeme.io/639d756b">Inner Circle</a> — new readings, new rites, first.</p>`;
+    $out.appendChild(seal);
+    seal.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  $cast.disabled=false; $cast.textContent="Read it again";
+  $stop.classList.add("hidden");
+  running=false;
+  updateSaveButton();
+}
+
+/* ── save as PDF ───────────────────────── */
+function updateSaveButton(){
+  $savePdf.classList.toggle("hidden", readingChambers.length===0);
+  $savePdf.disabled = running;
+  $savePdf.textContent = running ? "Reading…" : "Save as PDF";
+  $shareRite.classList.toggle("hidden", readingChambers.length===0 || running);
+}
+
+// Styled PDF: clone the ACTUAL rendered chamber elements (same CSS classes,
+// same fonts, same tag badges) into an offscreen container, then rasterize
+// that with html2canvas via jsPDF's .html(). This is why it matches the app
+// pixel-for-pixel instead of me re-deriving the layout in jsPDF's text API —
+// but it means the PDF's text is an image, not selectable/searchable text.
+function buildPrintContainer(){
+  const box = document.createElement("div");
+  box.style.cssText = "position:absolute; left:-9999px; top:0; width:720px; "
+    + "background:var(--ink); color:var(--bone); font-family:var(--body); "
+    + "padding:48px 44px 64px; box-sizing:border-box;";
+
+  const head = document.createElement("div");
+  head.innerHTML = `
+    <p class="eyebrow">Know Thyself · Delphi</p>
+    <h1 style="font-size:46px">The<br><em>Masculine</em> Rite</h1>
+    <p class="deck">${readingLabel.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</p>
+  `;
+  box.appendChild(head);
+
+  // Reuse the ledger exactly as shown on screen — same numbers, same beads.
+  if(!$ledger.classList.contains("hidden")){
+    const ledgerClone = $ledger.cloneNode(true);
+    ledgerClone.classList.remove("hidden");
+    box.appendChild(ledgerClone);
+  }
+
+  // Reuse the already fmt()'d chamber elements — no re-deriving markdown.
+  $out.querySelectorAll(".chamber").forEach(el => box.appendChild(el.cloneNode(true)));
+
+  if(!$key.classList.contains("hidden")){
+    const keyClone = $key.cloneNode(true);
+    keyClone.classList.remove("hidden");
+    box.appendChild(keyClone);
+  }
+
+  document.body.appendChild(box);
+  return box;
+}
+
+async function buildStyledPdfBlob(){
+  if(document.fonts && document.fonts.ready) await document.fonts.ready;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"pt", format:"letter" });
+  const container = buildPrintContainer();
+  try{
+    await doc.html(container, {
+      x: 36, y: 36,
+      width: 540,        // pt — letter width (612pt) minus 36pt margins each side
+      windowWidth: 720,   // px — matches container's actual width above
+      margin: [36,36,36,36],
+      autoPaging: "text",
+      html2canvas: { backgroundColor: "#0E111C" },
+    });
+  } finally {
+    container.remove();
+  }
+  return doc.output("blob");
+}
+
+const DOWNLOAD_ERROR_COPY = {
+  declined: null, // viewer said no — nothing to show, not an error
+  rate_limited: "A save prompt is already open, or you saved recently — try again in a moment.",
+  too_large: "This reading is too long to save as one file.",
+  rejected_extension: "PDF saving isn't available in this view.",
+  extension_not_enabled: "PDF saving isn't turned on for this view.",
+  unavailable: "Saving files isn't available in this view.",
+};
+function downloadCopyFor(code){
+  return DOWNLOAD_ERROR_COPY[code] !== undefined ? DOWNLOAD_ERROR_COPY[code] : `Couldn't save (${code}). Try again.`;
+}
+
+$savePdf.addEventListener("click", async () => {
+  if(readingChambers.length===0 || running) return;
+  const gotDl = await claudeCap("downloads");
+  if(gotDl.status !== "ok"){
+    $saveMsg.textContent = gotDl.status === "denied"
+      ? "File saving was declined — reload the page to be asked again."
+      : "Saving files isn't available in this view.";
+    $saveMsg.classList.remove("hidden");
+    return;
+  }
+  const downloads = gotDl.cap;
+  const prevText = $savePdf.textContent;
+  $savePdf.disabled = true; $savePdf.textContent = "Preparing…";
+  $saveMsg.classList.add("hidden");
+
+  let blob;
+  try{
+    blob = await buildStyledPdfBlob();
+  }catch(renderErr){
+    console.warn("PDF render failed:", renderErr);
+    $saveMsg.textContent = "Couldn't build the PDF. Try again.";
+    $saveMsg.classList.remove("hidden");
+    $savePdf.disabled = false; $savePdf.textContent = prevText;
+    return;
+  }
+
+  try{
+    const slug = (readingLabel || "reading").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"") || "reading";
+    await downloads.save({ filename: `masculine-rite-${slug}.pdf`, data: blob });
+  }catch(e){
+    const msg = downloadCopyFor(e.code);
+    if(msg){ $saveMsg.textContent = msg; $saveMsg.classList.remove("hidden"); }
+  }finally{
+    $savePdf.disabled = false; $savePdf.textContent = prevText;
+  }
+});
+
+/* ── share the rite: a link that carries the names, so the reading arrives already knowing ── */
+function riteUrl(){
+  const base = (location.origin && location.origin!=="null")
+    ? location.origin + location.pathname
+    : location.href.split("?")[0].split("#")[0];
+  const q = new URLSearchParams();
+  if($f.value.trim()) q.set("f",$f.value.trim());
+  if($m.value.trim()) q.set("m",$m.value.trim());
+  if($l.value.trim()) q.set("l",$l.value.trim());
+  const qs = q.toString();
+  return qs ? base+"?"+qs : base;
+}
+$shareRite.addEventListener("click", async ()=>{
+  const url = riteUrl();
+  $shareMsg.classList.add("hidden");
+  if(navigator.share){
+    try{ await navigator.share({title:"The Masculine Rite", text:"I cast this for you — open your reading.", url}); }
+    catch(e){ /* share sheet dismissed — not an error */ }
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    $shareMsg.textContent = "Link copied — send it to them.";
+  }catch(e){
+    $shareMsg.textContent = url;
+  }
+  $shareMsg.classList.remove("hidden");
+});
+
+/* ── a name arriving in the link (?f=&m=&l=): fill the fields and cast, no typing needed ── */
+(function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    const pf = q.get("f")||q.get("given")||"", pm = q.get("m")||q.get("middle")||"", pl = q.get("l")||q.get("family")||"";
+    if(pf||pm||pl){
+      $f.value=pf; $m.value=pm; $l.value=pl;
+      drawLedger();
+      setTimeout(()=>{ if(!$cast.disabled && !running) run(); }, 900);
+    }
+  }catch(e){}
+})();
+
+// Engine line: say plainly which voice will cast.
+$engine.textContent = (typeof claude!=="undefined" && claude.use)
+  ? "The Oracle will speak through Claude in this view."
+  : "The offline Book will cast this reading — no connection needed.";
+$engine.classList.remove("hidden");
+</script>
+
+</body></html>

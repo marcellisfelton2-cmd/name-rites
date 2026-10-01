@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0E111C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Name Rites">
+<link rel="manifest" href="name-rite-gateway.webmanifest">
+<link rel="apple-touch-icon" href="name-rite-gateway-icon-512.png">
+<title>The Name Rites — One Temple, Three Doors</title>
+<style>
+  :root{ --ink:#0E111C; --gold:#D4AF37; --paper:#EDE6D6; --muted:#9A917F; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ background:var(--ink); }
+  body{
+    background:var(--ink); color:var(--paper);
+    font-family: Georgia, "DejaVu Serif", "Times New Roman", serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:48px 20px 40px; -webkit-font-smoothing:antialiased;
+  }
+  .seal{ width:120px; height:120px; margin-bottom:28px; }
+  .kicker{
+    font-size:12px; letter-spacing:.42em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:14px; text-indent:.42em;
+  }
+  h1{
+    font-size:clamp(30px, 7vw, 44px); font-weight:400; letter-spacing:.06em;
+    text-align:center; margin-bottom:12px;
+  }
+  .sub{
+    color:var(--muted); font-style:italic; text-align:center;
+    margin-bottom:44px; font-size:16px;
+  }
+  main{ width:100%; max-width:560px; display:flex; flex-direction:column; gap:18px; }
+  .door{
+    --accent:#D4AF37;
+    display:block; text-decoration:none; color:var(--paper);
+    border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    border-radius:14px; padding:26px 24px 24px; position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
+    transition:transform .18s ease, border-color .18s ease, background .18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .door:active{ transform:scale(.985); }
+  .door .numeral{
+    position:absolute; top:18px; right:22px;
+    color:var(--accent); opacity:.55; font-size:15px; letter-spacing:.2em;
+  }
+  .door h2{
+    font-weight:400; font-size:24px; letter-spacing:.04em; margin-bottom:10px;
+  }
+  .door h2 .rule{
+    display:block; width:44px; height:2px; background:var(--accent);
+    margin-top:10px; opacity:.8;
+  }
+  .door p{ color:var(--muted); font-size:15.5px; line-height:1.65; font-style:italic; }
+  .door .enter{
+    display:inline-block; margin-top:16px; font-size:13px;
+    letter-spacing:.3em; text-transform:uppercase; color:var(--accent);
+  }
+  footer{
+    margin-top:52px; max-width:560px; text-align:center;
+    color:var(--muted); font-size:13.5px; font-style:italic; line-height:1.7;
+  }
+  footer .sig{ display:block; margin-top:10px; font-style:normal; letter-spacing:.3em; font-size:11px; text-transform:uppercase; }
+  @media (hover:hover){
+    .door:hover{ border-color:var(--accent); background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01)); }
+  }
+</style>
+</head>
+<body>
+  <svg class="seal" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="56" fill="none" stroke="#D4AF37" stroke-width="1.5" opacity=".8"/>
+    <circle cx="60" cy="60" r="47" fill="none" stroke="#D4AF37" stroke-width="1" opacity=".35"/>
+    <g fill="none" stroke="#D4AF37" stroke-width="1.2" opacity=".9">
+      <rect x="32" y="32" width="56" height="56"/>
+      <rect x="32" y="32" width="56" height="56" transform="rotate(45 60 60)"/>
+    </g>
+    <circle cx="60" cy="60" r="4" fill="#D4AF37"/>
+  </svg>
+
+  <div class="kicker">Know Thyself</div>
+  <h1>The Name Rites</h1>
+  <p class="sub">One temple, three doors. Choose the current that calls you.<br>Each rite carries its own book — it casts with or without a connection.</p>
+
+  <main>
+    <a class="door" style="--accent:#4FA88B" href="name-rite-app/index.html">
+      <span class="numeral">I</span>
+      <h2>The Name Rite<span class="rule"></span></h2>
+      <p>Every name is a sentence someone spoke over you before you could answer. The first rite — the arithmetic and the myth, the book carried within.</p>
+      <span class="enter">Enter &rarr;</span>
+    </a>
+
+    <a class="door" style="--accent:#C28A93" href="feminine-rite-app/index.html">
+      <span class="numeral">II</span>
+      <h2>The Feminine Rite<span class="rule"></span></h2>
+      <p>Every girl is given a shape before she can choose one. The mothers, the waters, the root current — read in the feminine.</p>
+      <span class="enter">Enter &rarr;</span>
+    </a>
+
+    <a class="door" style="--accent:#B87333" href="masculine-rite-app/index.html">
+      <span class="numeral">III</span>
+      <h2>The Masculine Rite<span class="rule"></span></h2>
+      <p>Every boy is given a shape before he can choose one. The fathers, the forge, the root current — read in the masculine.</p>
+      <span class="enter">Enter &rarr;</span>
+    </a>
+  </main>
+
+  <footer>
+    The book is open — and where the book holds nothing, nothing will be invented.
+    <span class="sig">✦</span>
+  </footer>
+</body>
+</html>
